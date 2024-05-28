@@ -45,7 +45,7 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
-        builder => builder.WithOrigins("http://localhost:3000", "http://localhost:8080", "http://localhost:4200")
+        builder => builder.WithOrigins("http://localhost:3000", "https://velvety-tapioca-207e33.netlify.app/")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
