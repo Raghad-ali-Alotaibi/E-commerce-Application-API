@@ -10,12 +10,9 @@ namespace auth.Helpers
     public class JwtService
     {
 
-
-
         public JwtService()
         {
             Console.WriteLine($"Jwt__Key: {Environment.GetEnvironmentVariable("Jwt__Key")}");
-
         }
 
         public string GenerateJwt(UserDto user)
