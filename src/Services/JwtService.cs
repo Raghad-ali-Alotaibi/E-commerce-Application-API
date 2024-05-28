@@ -10,23 +10,20 @@ namespace auth.Helpers
     public class JwtService
     {
 
+
+
         public JwtService()
         {
-            Console.WriteLine($"JWT Issuer: {Environment.GetEnvironmentVariable("Jwt__Issuer")}");
+            Console.WriteLine($"Jwt__Key: {Environment.GetEnvironmentVariable("Jwt__Key")}");
+
         }
+
         public string GenerateJwt(UserDto user)
         {
             // Retrieve the JWT key from configuration
             var jwtKey = Environment.GetEnvironmentVariable("Jwt__Key") ?? throw new InvalidOperationException("JWT Key is missing in environment variables.");
             var jwtIssuer = Environment.GetEnvironmentVariable("Jwt__Issuer") ?? throw new InvalidOperationException("JWT Issuer is missing in environment variables.");
             var jwtAudience = Environment.GetEnvironmentVariable("Jwt__Audience") ?? throw new InvalidOperationException("JWT Audience is missing in environment variables.");
-
-            if (string.IsNullOrEmpty(jwtAudience))
-            {
-                jwtAudience = "default_audience"; // Provide a default audience value
-                                                  // Optionally, you can throw an exception if you want to enforce the presence of the audience.
-                                                  // throw new InvalidOperationException("JWT Audience is missing in environment variables.");
-            }
             // Check if the key is null or empty
             if (string.IsNullOrEmpty(jwtKey))
             {
