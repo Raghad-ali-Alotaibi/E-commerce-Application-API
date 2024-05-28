@@ -13,8 +13,7 @@ namespace Backend.Models
         [StringLength(50, MinimumLength = 2, ErrorMessage = "Category name must be between 2 and 50 characters.")]
         public string CategoryName { get; set; } = null!;
 
-        [Required(ErrorMessage = "Category slug is required.")]
-        [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "Category slug can only contain lowercase letters, numbers, and hyphens.")]
+        // [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "Category slug can only contain lowercase letters, numbers, and hyphens.")]
         public string CategorySlug { get; set; } = null!;
 
         [StringLength(500, ErrorMessage = "Category description cannot exceed 500 characters.")]

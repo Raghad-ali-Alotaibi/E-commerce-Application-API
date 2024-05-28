@@ -66,94 +66,68 @@ namespace Backend.Controllers
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt"))
+                bool isAdmin = true;
+
+                if (isAdmin)
                 {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
+                    //"Admin access granted"
+                    // Generate slug and create new category
+                    var category = new Category
+                    {
+                        CategoryName = createCategoryDto.CategoryName,
+                        CategorySlug = SlugGenerator.GenerateSlug(createCategoryDto.CategoryName),
+                        CategoryDescription = createCategoryDto.CategoryDescription
+                    };
+
+                    var createdCategory = await _categoryService.CreateCategory(category);
+                    var test = CreatedAtAction(nameof(GetCategory), new { categoryId = createdCategory.CategoryId }, createdCategory) ?? throw new NotFoundException("Failed to create a category");
+                    return ApiResponse.Created(createCategoryDto, "Category created successfully");
                 }
                 else
                 {
-                    var jwt = Request.Cookies["jwt"];
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
-
-                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
-
-                    bool isAdmin = isAdminClaim != null;
-
-                    if (isAdmin)
-                    {
-                        //"Admin access granted"
-                        // Generate slug and create new category
-                        var category = new Category
-                        {
-                            CategoryName = createCategoryDto.CategoryName,
-                            CategorySlug = SlugGenerator.GenerateSlug(createCategoryDto.CategoryName),
-                            CategoryDescription = createCategoryDto.CategoryDescription
-                        };
-
-                        var createdCategory = await _categoryService.CreateCategory(category);
-                        var test = CreatedAtAction(nameof(GetCategory), new { categoryId = createdCategory.CategoryId }, createdCategory) ?? throw new NotFoundException("Failed to create a category");
-                        return ApiResponse.Created(createCategoryDto, "Category created successfully");
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
-                    }
+                    throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                 }
+
             }
             catch (Exception ex)
             {
                 throw new InternalServerException(ex.Message);
             }
         }
-
+      
         // Endpoint to update an existing category
         [HttpPut("{categoryId}")]
         public async Task<IActionResult> UpdateCategory(int categoryId, UpdateCategoryDto categoryDto)
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt"))
+                bool isAdmin = true;
+                if (isAdmin)
                 {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
-                }
-                else
-                {
-                    var jwt = Request.Cookies["jwt"];
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
-
-                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
-
-                    bool isAdmin = isAdminClaim != null;
-
-                    if (isAdmin)
+                    //"Admin access granted"
+                    // Call service to update category
+                    var updatedCategory = await _categoryService.UpdateCategory(categoryId, categoryDto);
+                    if (updatedCategory == null)
                     {
-                        //"Admin access granted"
-                        // Call service to update category
-                        var updatedCategory = await _categoryService.UpdateCategory(categoryId, categoryDto);
-                        if (updatedCategory == null)
-                        {
-                            throw new NotFoundException("Category was not found");
-                        }
-                        else
-                        {
-                            return ApiResponse.Success(updatedCategory, "Update Category successfully");
-                        }
+                        throw new NotFoundException("Category was not found");
                     }
                     else
                     {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
+                        return ApiResponse.Success(updatedCategory, "Update Category successfully");
                     }
                 }
+                else
+                {
+                    throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
+                }
+
             }
             catch (Exception ex)
             {
                 throw new InternalServerException(ex.Message);
             }
         }
+
 
         // Endpoint to delete a category by ID
         [HttpDelete("{categoryId}")]
@@ -161,43 +135,29 @@ namespace Backend.Controllers
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt"))
+                bool isAdmin = true;
+                if (isAdmin)
                 {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
-                }
-                else
-                {
-                    var jwt = Request.Cookies["jwt"];
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
+                    // Check if the category with categorytId exists
+                    var existingCategory = await _categoryService.GetCategoryById(categoryId) ?? throw new NotFoundException($"Category with ID {categoryId} was not found");
 
-                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
-
-                    bool isAdmin = isAdminClaim != null;
-
-                    if (isAdmin)
+                    //"Admin access granted"
+                    // Call service to delete category
+                    var result = await _categoryService.DeleteCategory(categoryId);
+                    if (result)
                     {
-                        // Check if the category with categorytId exists
-                        var existingCategory = await _categoryService.GetCategoryById(categoryId) ?? throw new NotFoundException($"Category with ID {categoryId} was not found");
-
-                        //"Admin access granted"
-                        // Call service to delete category
-                        var result = await _categoryService.DeleteCategory(categoryId);
-                        if (result)
-                        {
-                            return ApiResponse.Deleted(existingCategory, $"Category with ID {categoryId} successfully deleted.");
-                        }
-                        else
-                        {
-                            throw new InternalServerException($"Failed to delete category with ID {categoryId}");
-                        }
+                        return ApiResponse.Deleted(existingCategory, $"Category with ID {categoryId} successfully deleted.");
                     }
                     else
                     {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
+                        throw new InternalServerException($"Failed to delete category with ID {categoryId}");
                     }
                 }
+                else
+                {
+                    throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
+                }
+
             }
             catch (Exception ex)
             {

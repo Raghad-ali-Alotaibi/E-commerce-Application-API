@@ -27,6 +27,7 @@ namespace Backend.Models
         public int ProductQuantityInStock { get; set; }
         [JsonIgnore]
         public DateTime? CreatedAt { get; set; }
+         
 
         public int? CategoryId { get; set; }
         [JsonIgnore]

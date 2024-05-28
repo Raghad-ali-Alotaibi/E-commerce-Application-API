@@ -10,19 +10,23 @@ namespace auth.Helpers
     public class JwtService
     {
 
-
-        private readonly IConfiguration _configuration;
-
-        public JwtService(IConfiguration configuration)
+        public JwtService()
         {
-            _configuration = configuration;
+            Console.WriteLine($"JWT Issuer: {Environment.GetEnvironmentVariable("Jwt__Issuer")}");
         }
-
         public string GenerateJwt(UserDto user)
         {
             // Retrieve the JWT key from configuration
-            var jwtKey = _configuration["Jwt:Key"];
+            var jwtKey = Environment.GetEnvironmentVariable("Jwt__Key") ?? throw new InvalidOperationException("JWT Key is missing in environment variables.");
+            var jwtIssuer = Environment.GetEnvironmentVariable("Jwt__Issuer") ?? throw new InvalidOperationException("JWT Issuer is missing in environment variables.");
+            var jwtAudience = Environment.GetEnvironmentVariable("Jwt__Audience") ?? throw new InvalidOperationException("JWT Audience is missing in environment variables.");
 
+            if (string.IsNullOrEmpty(jwtAudience))
+            {
+                jwtAudience = "default_audience"; // Provide a default audience value
+                                                  // Optionally, you can throw an exception if you want to enforce the presence of the audience.
+                                                  // throw new InvalidOperationException("JWT Audience is missing in environment variables.");
+            }
             // Check if the key is null or empty
             if (string.IsNullOrEmpty(jwtKey))
             {
@@ -57,8 +61,8 @@ namespace auth.Helpers
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
 
                 // Set the issuer and audience of the token
-                Issuer = _configuration["Jwt:Issuer"],
-                Audience = _configuration["Jwt:Audience"],
+                Issuer = jwtIssuer,
+                Audience = jwtAudience,
             };
 
             // Create a JWT token handler

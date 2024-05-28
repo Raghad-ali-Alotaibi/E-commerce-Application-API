@@ -95,7 +95,6 @@ namespace Backend.Helpers
                 var categoryCreationExample = new OpenApiObject
                 {
                     ["categoryName"] = new OpenApiString("Home & Garden"),
-                    ["categorySlug"] = new OpenApiString("home-and-garden"),
                     ["categoryDescription"] = new OpenApiString("Transform your living space into a sanctuary with our Home & Garden essentials. From stylish decor to practical tools, create a space that reflects your personality and style.")
                 };
 

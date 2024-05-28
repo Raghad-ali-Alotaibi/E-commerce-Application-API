@@ -96,7 +96,7 @@ namespace Backend.Services // Defining namespace for services
         }
 
         // Method for creating a new product
-        public async Task<Product> CreateProductAsync(Product product)
+     public async Task<Product> CreateProductAsync(Product product)
         {
             try
             {
@@ -146,11 +146,11 @@ namespace Backend.Services // Defining namespace for services
         }
 
         // Method for deleting a product by its ID
-        public async Task<bool> DeleteProductAsync(int ProductId)
+        public async Task<bool> DeleteProductAsync(int productId)
         {
             try
             {
-                var productToDelete = await _dbContext.Products.FindAsync(ProductId); // Find the product to delete by ID
+                var productToDelete = await _dbContext.Products.FindAsync(productId); // Find the product to delete by ID
                 if (productToDelete != null) // Check if the product exists
                 {
                     _dbContext.Products.Remove(productToDelete); // Remove the product from the database context
@@ -165,7 +165,7 @@ namespace Backend.Services // Defining namespace for services
             catch (Exception ex)
             {
                 // Handle exception or log error
-                throw new ApplicationException($"An error occurred while deleting product with ID {ProductId}.", ex);
+                throw new ApplicationException($"An error occurred while deleting product with ID {productId}.", ex);
             }
         }
 

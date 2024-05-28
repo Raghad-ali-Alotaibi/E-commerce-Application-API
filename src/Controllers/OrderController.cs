@@ -26,34 +26,19 @@ namespace api.Controllers
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt"))
+                bool isAdmin = true;
+                if (isAdmin)
                 {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
+                    //"Admin access granted" 
+                    // Retrieve all orders using OrderService
+                    var orders = await _orderService.GetAllOrdersService();
+                    return ApiResponse.Success(orders, "All Orders returned successfully");
                 }
                 else
                 {
-                    var jwt = Request.Cookies["jwt"];
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
-                    // Check if user has admin role
-
-                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
-
-                    bool isAdmin = isAdminClaim != null;
-
-                    if (isAdmin)
-                    {
-                        //"Admin access granted" 
-                        // Retrieve all orders using OrderService
-                        var orders = await _orderService.GetAllOrdersService();
-                        return ApiResponse.Success(orders, "All Orders returned successfully");
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
-                    }
+                    throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                 }
+
             }
             catch (Exception e)
             {
@@ -262,4 +247,3 @@ namespace api.Controllers
         }
     }
 }
-

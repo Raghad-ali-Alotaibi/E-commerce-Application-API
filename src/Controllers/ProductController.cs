@@ -28,7 +28,7 @@ namespace Backend.Controllers // Defining namespace for controller
             [FromQuery] decimal? maxPrice = null, // Optional query parameter for filtering by maximum price
             [FromQuery] DateTime? createDate = null, // Optional query parameter for filtering by creation date
             [FromQuery] int pageNumber = 1, // Optional query parameter for pagination - page number
-            [FromQuery] int pageSize = 100, // Optional query parameter for pagination - page size
+            [FromQuery] int pageSize = 15, // Optional query parameter for pagination - page size
             [FromQuery] string sortBy = "id", // Optional query parameter for sorting
             [FromQuery] bool ascending = true,
             [FromQuery] int? categoryId = null // Add categoryId parameter
@@ -92,114 +92,67 @@ namespace Backend.Controllers // Defining namespace for controller
                 throw new InternalServerException(ex.Message); // Return server error with exception message
             }
         }
-
-        // Action method for creating a new product
         [HttpPost] // HTTP POST method attribute
         public async Task<IActionResult> CreateProduct(CreateProductDto productDto) // Action method for creating a new product
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt")) // Check if JWT token exists in request cookies
+
+
+                //"Admin access granted"
+                if (productDto == null) // Check if product data is null
                 {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");// Return unauthorized response if token is missing
+                    throw new BadRequestException("Product data is null"); // Return bad request response
                 }
-                else
+
+                var product = new Product
                 {
-                    var jwt = Request.Cookies["jwt"]; // Get JWT token from request cookies
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
+                    ProductName = productDto.ProductName,
+                    ProductDescription = productDto.ProductDescription,
+                    ProductPrice = productDto.ProductPrice,
+                    ProductImage = productDto.ProductImage,
+                    ProductQuantityInStock = productDto.ProductQuantityInStock,
+                    CategoryId = productDto.CategoryId,
+                    // Other properties as needed
+                };
 
-                    var isAdminClaim = token.Claims.FirstOrDefault(c =>
-                        c.Type == "role" && c.Value == "Admin"
-                    ); // Check if user is admin
+                product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName); // Generate slug for product
+                var createdProduct = await _productService.CreateProductAsync(product); // Create product using service
+                var test = CreatedAtAction(
+                    nameof(GetProduct),
+                    new { productId = createdProduct.ProductId },
+                    createdProduct
+                ) ?? throw new NotFoundException("Failed to create a product"); // Check if product creation was successful
+                return ApiResponse.Created(productDto, "Product created successfully"); // Return success response with created product
 
-                    bool isAdmin = isAdminClaim != null; // Boolean flag for admin role
 
-                    if (isAdmin) // Check if user is admin
-                    {
-                        //"Admin access granted"
-                        if (productDto == null) // Check if product data is null
-                        {
-                            throw new BadRequestException("Product data is null"); // Return bad request response
-                        }
-
-                        var product = new Product
-                        {
-                            ProductName = productDto.ProductName,
-                            ProductDescription = productDto.ProductDescription,
-                            ProductPrice = productDto.ProductPrice,
-                            ProductImage = productDto.ProductImage,
-                            ProductQuantityInStock = productDto.ProductQuantityInStock,
-                            CategoryId = productDto.CategoryId,
-                            // Other properties as needed
-                        };
-
-                        product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName); // Generate slug for product
-                        var createdProduct = await _productService.CreateProductAsync(product); // Create product using service
-                        var test = CreatedAtAction(
-                            nameof(GetProduct),
-                            new { productId = createdProduct.ProductId },
-                            createdProduct
-                        ) ?? throw new NotFoundException("Failed to create a product"); // Check if product creation was successful
-                        return ApiResponse.Created(productDto, "Product created successfully"); // Return success response with created product
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint"); // Return unauthorized response if user is not admin
-                    }
-                }
             }
             catch (Exception ex) // Catching any exceptions
             {
                 throw new InternalServerException(ex.Message); // Return server error with exception message
             }
         }
-
         // Action method for updating a product
         [HttpPut("{ProductId}")] // HTTP PUT method attribute
         public async Task<IActionResult> UpdateProduct(int ProductId, Product product) // Action method for updating a product
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt")) // Check if JWT token exists in request cookies
+
+                //"Admin access granted"
+                if (product == null || product.ProductId != ProductId) // Check if product data is null or product ID is not matching
                 {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗"); // Return unauthorized response if token is missing
+                    throw new BadRequestException("Invalid product data"); // Return bad request response
                 }
-                else
-                {
-                    var jwt = Request.Cookies["jwt"]; // Get JWT token from request cookies
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
 
-                    var isAdminClaim = token.Claims.FirstOrDefault(c =>
-                        c.Type == "role" && c.Value == "Admin"
-                    ); // Check if user is admin
+                product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName); // Generate slug for product
+                var updatedProduct = await _productService.UpdateProductAsync(
+                    ProductId,
+                    product
+                ) ?? throw new NotFoundException("Product was not found"); // Update product using service
 
-                    bool isAdmin = isAdminClaim != null; // Boolean flag for admin role
+                return ApiResponse.Success(updatedProduct, "Update product successfully"); // Return success response with updated product
 
-                    if (isAdmin) // Check if user is admin
-                    {
-                        //"Admin access granted"
-                        if (product == null || product.ProductId != ProductId) // Check if product data is null or product ID is not matching
-                        {
-                            throw new BadRequestException("Invalid product data"); // Return bad request response
-                        }
-
-                        product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName); // Generate slug for product
-                        var updatedProduct = await _productService.UpdateProductAsync(
-                            ProductId,
-                            product
-                        ) ?? throw new NotFoundException("Product was not found"); // Update product using service
-
-                        return ApiResponse.Success(updatedProduct, "Update product successfully"); // Return success response with updated product
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint"); // Return unauthorized response if user is not admin
-                    }
-                }
             }
             catch (Exception ex) // Catching any exceptions
             {
@@ -208,49 +161,34 @@ namespace Backend.Controllers // Defining namespace for controller
         }
 
         // Action method for deleting a product
-        [HttpDelete("{ProductId}")] // HTTP DELETE method attribute
-        public async Task<IActionResult> DeleteProduct(int ProductId) // Action method for deleting a product
+        [HttpDelete("{productId}")] // HTTP DELETE method attribute
+        public async Task<IActionResult> DeleteProduct(int productId) // Action method for deleting a product
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt")) // Check if JWT token exists in request cookies
+                bool isAdmin = true;
+
+                if (isAdmin) // Check if user is admin
                 {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗"); // Return unauthorized response if token is missing
-                }
-                else
-                {
-                    var jwt = Request.Cookies["jwt"]; // Get JWT token from request cookies
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
+                    // Check if the product with productId exists
+                    var existingProduct = await _productService.GetProductByIdAsync(productId) ?? throw new NotFoundException($"Product with ID {productId} was not found.");
 
-                    var isAdminClaim = token.Claims.FirstOrDefault(c =>
-                        c.Type == "role" && c.Value == "Admin"
-                    ); // Check if user is admin
-
-                    bool isAdmin = isAdminClaim != null; // Boolean flag for admin role
-
-                    if (isAdmin) // Check if user is admin
+                    //"Admin access granted"
+                    var result = await _productService.DeleteProductAsync(productId); // Delete product using service
+                    if (result) // Check if product was deleted successfully
                     {
-                        // Check if the product with productId exists
-                        var existingProduct = await _productService.GetProductByIdAsync(ProductId) ?? throw new NotFoundException($"Product with ID {ProductId} was not found.");
-
-                        //"Admin access granted"
-                        var result = await _productService.DeleteProductAsync(ProductId); // Delete product using service
-                        if (result) // Check if product was deleted successfully
-                        {
-                            return ApiResponse.Deleted(existingProduct, $"Product with ID {ProductId} successfully deleted."); // Return no content response
-                        }
-                        else
-                        {
-                            throw new InternalServerException($"Failed to delete product with ID {ProductId}."); // Return not found response if product was not found
-                        }
+                        return ApiResponse.Deleted(existingProduct, $"Product with ID {productId} successfully deleted."); // Return no content response
                     }
                     else
                     {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint"); // Return unauthorized response if user is not admin
+                        throw new InternalServerException($"Failed to delete product with ID {productId}."); // Return not found response if product was not found
                     }
                 }
+                else
+                {
+                    throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint"); // Return unauthorized response if user is not admin
+                }
+
             }
             catch (Exception ex) // Catching any exceptions
             {

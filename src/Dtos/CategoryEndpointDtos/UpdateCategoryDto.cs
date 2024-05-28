@@ -5,7 +5,6 @@ namespace Backend.Dtos
 {
     public class UpdateCategoryDto
     {
-        [JsonIgnore]
         public int CategoryId { get; set; }
         [MaxLength(50, ErrorMessage = "CategoryName must be less than 50 characters")]
         [RegularExpression(@"^[a-zA-Z\s]*$", ErrorMessage = "CategoryName must contain only letters")]

@@ -69,7 +69,7 @@ namespace Backend.Services
             try
             {
                 // Generate a unique identifier for the category using IdGenerator helper.
-                // category.CategoryId = await IdGenerator.GenerateIdAsync<Category>(_dbContext);
+                category.CategoryId = await IdGenerator.GenerateIdAsync<Category>(_dbContext);
 
                 // Add the category to the database and save changes.
                 _dbContext.Categories.Add(category);
@@ -92,7 +92,7 @@ namespace Backend.Services
                 {
                     // Update category properties with values from the DTO.
                     existingCategory.CategoryName = categoryDto.CategoryName;
-                    existingCategory.CategorySlug = SlugGenerator.GenerateSlug(categoryDto.CategoryName);
+                    // existingCategory.CategorySlug = SlugGenerator.GenerateSlug(categoryDto.CategoryName);
                     existingCategory.CategoryDescription = categoryDto.CategoryDescription;
 
                     // Save changes to the database.
