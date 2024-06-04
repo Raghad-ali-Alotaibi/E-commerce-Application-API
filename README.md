@@ -1,66 +1,27 @@
-# E-commerce Application API - Team 9
+# E-commerce Application API 🛒💻
 
-This repository contains ASP.NET Core application with RESTful API endpoints for e-commerce application. The API allows you to interact with products in the store.
+This repository contains the code for the backend of an E-commerce Application API implemented in C# using ASP.NET Core and PostgreSQL. The API provides endpoints for managing products, orders, users, and more.
 
-`This is a teamwork assignment where you will work as a team within your group`
+## Features 🚀
 
-## How to work
+- **Product Management**: CRUD operations for managing products, including creation, retrieval, updating, and deletion.
+- **Order Management**: Endpoints for creating, retrieving, updating, and canceling orders.
+- **User Authentication**: Secure endpoints with user authentication and authorization using JWT (JSON Web Tokens).
+- **Search and Filter**: Search for products and orders based on various criteria, such as name, category, price, and more.
+- **Error Handling**: Robust error handling to ensure smooth operation and informative error messages.
 
-1. One team member (admin) should fork the repo and add other members to that admin repo as collaborators.
-2. The other team members should fork then clone the forked repo (the admin repo).
-3. Any change/update made should be submitted to admin repo as pull request.
-4. Each change should be done in a separate pull request.
-5. Pull request must be reviewed by all members before merged to admin repo.
-6. Admin should open a PR to the original (Integrify) repo.
+## Technologies Used 💻
 
-Please ask your instructor or supporting instructor if you have any questions or need help.
+- **C#**: Primary programming language used for building the API backend.
+- **ASP.NET Core**: Web framework for building scalable and high-performance APIs.
+- **Entity Framework Core**: ORM (Object-Relational Mapping) framework for interacting with the PostgreSQL database.
+- **PostgreSQL**: Open-source relational database management system used for storing application data.
+- **JWT Authentication**: JSON Web Tokens for secure user authentication and authorization.
+- **Swagger**: API documentation tool for generating interactive API documentation.
 
-## Database Requirements
+## Usage 📋
 
-### Level 1: Basic Requirements
-
-For the upcoming database assignment, please design an Entity-Relationship Diagram (ERD) tailored to the project described below.
-
-### Level 2: Additional Requirements
-
-Create the necessary tables, define their respective columns, and provide seed data within pgAdmin.
-
-## Backend project Requirements
-
-### Level 1: Basic Requirements
-
-In this level, the application includes the following features:
-
-1. Identify Entities: Identify the main entities that need to be stored in the database. These could include customers, products, categories, orders, etc.
-2. Define Attributes: For each entity, list and define the attributes or properties associated with it. For example, for a "customer" entity, attributes might include "id," "firstName," "lastName," "email" and so on.
-3. Establish Relationships: Determine the relationships between entities. Relationships can be one-to-one, one-to-many, or many-to-many. For instance, in an E-commerce system, a "customer" may have multiple "orders".
-4. Key: When establishing relationships, remember to create a key in your ERD to explain the notation used for relationships.
-5. According to the ERD above, create the entities, and build the database with Entity Framework Core.
-6. Create basic CRUD operations for each endpoint.
-7. Use authentication and role-based authorization
-
-### Level 2: Additional Requirements
-
-In addition to the basic requirements, the application enhances its functionality with the following features:
-
-1. Include pagination functionality to the method getting all products.
-2. Implement search functionality to allow users to search for specific products based on keywords or specific fields (e.g., by title).
-3. Add validation checks to ensure the data meets certain criteria before executing the actions.
-
-### Level 3: Advanced Requirements
-
-If you have a higher skill level and finish the previous requirements before the deadline, you can tackle the following bonus tasks:
-
-1. Refactor method getting all books or products to also handle query parameters for filtering and sorting products based on specific criteria (e.g., price range, by title, by date, etc). Pagination still need to be integrated.
-2. Use claim-based or resource-based where applicable.
-3. Peer Review:
-   - Review 2 assignments from other teams.
-   - Provide constructive feedback and suggestions for improvement.
-
-`Please note that the bonus requirements and reviews are optional and can be completed if you have additional time and advanced skills.`
-
-Happy coding!
-
-## Deadline
-
-The deadline for the backend project is May 8th End of day (Before the presentation day)
+1. **Authentication**: Obtain a JWT token by authenticating with valid credentials.
+2. **Product Management**: Use the provided endpoints to manage products in the system.
+3. **Order Management**: Create, retrieve, update, or cancel orders using the appropriate endpoints.
+4. **User Management**: Manage user accounts, roles, and permissions as needed.
